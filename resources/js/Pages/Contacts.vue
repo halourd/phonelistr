@@ -43,7 +43,7 @@ export default {
     components: {
         SkeletalLoader
     },
-    mounted() {
+    created() {
         this.getContacts();
     },
     methods: {
