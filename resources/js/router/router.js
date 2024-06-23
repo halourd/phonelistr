@@ -20,7 +20,20 @@ const routes = [
         path: '/contacts/:id/edit',
         name: 'Edit Contact',
         props: true,
-        component: () => import('../Pages/EditContact.vue')
+        component: () => import('../Pages/EditContact.vue'),
+        beforeEnter: async (to, from, next) => {
+            try {
+                const response = await axios.get(`api/contacts/${to.params.id}`);
+                if (response.status === 404) {
+                    next('/');
+                } else {
+                    next();
+                }
+              } catch (error) {
+                    console.error(error.response.data.error);
+                    next('/');
+              }
+        }
     },
 ];
 

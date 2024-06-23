@@ -33,7 +33,11 @@ class PhoneBookContactController extends Controller
         // dd($request->all());
         $validator = Validator::make($request->all(),[
             'contact_name' => 'required|string|min:5|max:50',
-            'contact_number' => 'required|digits:11|unique:phone_book_contacts'
+            'contact_number' => 'required|numeric|digits_between:3, 15|unique:phone_book_contacts'
+        ], [
+            'contact_name.required' => "Contact Name is required",
+            'contact_number.required' => "Contact Number is required",
+            'contact_number.unique' => "You already have the contact number you provided."
         ]);
 
         if($validator->fails()){
@@ -44,6 +48,7 @@ class PhoneBookContactController extends Controller
         $contact->contact_name = $request->contact_name;
         $contact->contact_number = $request->contact_number;
         $contact->save();
+        return response()->json(['message'=>'Contact Successfully Created'], 201);
     }
 
     /**
@@ -52,7 +57,9 @@ class PhoneBookContactController extends Controller
     public function show($id)
     {
         $phoneBookContact = PhoneBookContact::find($id);
-
+        if(!$phoneBookContact){
+            return response()->json(['error'=> "Contact doesn't exist."], 404);
+        }
         return response()->json($phoneBookContact);
     }
 
@@ -71,7 +78,11 @@ class PhoneBookContactController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'contact_name' =>'required|string|min:5|max:50',
-            'contact_number' =>'required|digits:11'
+            'contact_number' =>'required|numeric|digits_between:3, 15'
+        ], [
+            'contact_name.required' => "Contact Name is required",
+            'contact_number.required' => "Contact Number is required",
+            'contact_number.unique' => "You already have the contact number you provided."
         ]);
 
         if($validator->fails()){
@@ -81,7 +92,7 @@ class PhoneBookContactController extends Controller
         $phoneBookContact->contact_name = $request->contact_name;
         $phoneBookContact->contact_number = $request->contact_number;
         $phoneBookContact->save();
-        return response()->json($phoneBookContact,200);
+        return response()->json(['message'=>"Contact Successfully Updated"],200);
     }
 
     /**

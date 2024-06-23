@@ -11,20 +11,20 @@
             </div>
 
             <label for="contact_name">Contact Name</label>
-            <div>
-                <input type="text" name="contact_name" class="p-4 w-full border rounded-md" v-model="contact_name" required>
+            <div class="mb-4">
+                <input type="text" name="contact_name" class="p-4 w-full border rounded-md" placeholder="Enter your contact name" v-model="contact_name" required>
             </div>
 
             <label for="contact_number">Number</label>
             <div>
-                <input type="text" name="contact_number" class="p-4 w-full border rounded-md" v-model="contact_number" required>
+                <input type="text" name="contact_number" minlength="3" maxlength="15" @input="inputNumber" placeholder="3 to 15-digit number" class="p-4 w-full border rounded-md" v-model="contact_number" required>
             </div>
 
             <div>
                 <button type="submit" class="bg-orange-400 rounded-md w-full py-2 mt-4 text-white">Update</button>
             </div>
             <div>
-                <button @click="$router.push('/')" class="rounded-md w-full py-2 mt-4 ">Cancel</button>
+                <button type="button" @click="$router.push('/')" class="rounded-md w-full py-2 mt-4 ">Cancel</button>
             </div>
         </form>
     </div>
@@ -32,6 +32,7 @@
 
 <script>
 import axios from 'axios'
+import {validateNumber} from '../helper/DigitValidator.js'
 
 export default {
     data() {
@@ -43,10 +44,13 @@ export default {
         }
     },
     props: ['id'],
-    mounted(){
+    beforeMount(){
         this.fetchContactDetail(this.$route.params.id)
     },
     methods: {
+        inputNumber(e){
+            this.contact_number = validateNumber(e.target.value)
+        },
         async fetchContactDetail(id){
             await axios.get(`/api/contacts/${id}`)
                 .then((result) => {
@@ -54,30 +58,27 @@ export default {
                     this.contact_name = result.data.contact_name,
                     this.contact_number = result.data.contact_number
                 }).catch((err) => {
-                    alert(err.response.data);
+                    this.$router.push('/')
                 });
 
         },
         async editContact() {
             try {
-                console.log({
-                    id: this.$route.params.id,
-                    contact_name: this.contact_name,
-                    contact_number: this.contact_number
-                })
                 await axios.put(`/api/contacts/${this.$route.params.id}`, {
                     id: this.$route.params.id,
                     contact_name: this.contact_name,
                     contact_number: this.contact_number
                 })
                     .then((result) => {
-                        console.log(result)
+                        if(result){
+                            alert(result.data.message)
+                        }
                         this.$router.push('/')
                     }).catch((err) => { 
                         this.errorMessages = err.response.data.error
                     });
             } catch (error) {
-                
+                alert('An error occurred: ')
             }
         }
     },

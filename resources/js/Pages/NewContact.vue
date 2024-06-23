@@ -12,13 +12,13 @@
             </div>
 
             <label for="contact_name">Contact Name</label>
-            <div>
-                <input type="text" name="contact_name" class="p-4 w-full border rounded-md" v-model="contact_name" required>
+            <div class="mb-4">
+                <input type="text" name="contact_name" placeholder="Enter your contact name" minlength="3" class="p-4 w-full border rounded-md" v-model="contact_name" required>
             </div>
 
             <label for="contact_number">Number</label>
             <div>
-                <input type="text" name="contact_number" class="p-4 w-full border rounded-md" v-model="contact_number" required>
+                <input type="text" name="contact_number" placeholder="3 to 15-digit number" minlength="3" maxlength="15" class="p-4 w-full border rounded-md" @input="inputNumber" v-model="contact_number" required>
             </div>
 
             <div>
@@ -29,6 +29,8 @@
 </template>
  
 <script>
+import {validateNumber} from '../helper/DigitValidator.js'
+
 export default {
     data() {
         return {
@@ -38,12 +40,16 @@ export default {
         }
     },
     methods: {
+        inputNumber(e) {
+            this.contact_number = validateNumber(e.target.value)
+        },
         async submitNewContact() {
             try {
                 await axios.post("/api/contacts/create", {
                     contact_name: this.contact_name,
                     contact_number: this.contact_number
                 }).then((result) => {
+                    alert(result.data.message)
                     this.$router.push('/')
                 }).catch((error) => {
                     if (error.response && error.response.data) {
